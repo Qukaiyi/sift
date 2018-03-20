@@ -163,7 +163,6 @@ class TermIdfs(TermDocumentFrequencies, Model):
 
         log.info('Building idf model: N=%i', N)
         return dfs\
-            .map(lambda (term, (df, rank)): (term, df))\
             .mapValues(lambda df: math.log(N/df))
 
     @staticmethod
@@ -181,7 +180,7 @@ class EntityMentionTermFrequency(ModelBuilder, Model):
 
     def build(self, mentions, idfs):
         m = mentions\
-            .map(lambda (target, (span, text)): (target, text))\
+            .map(lambda (target, source, text, span): (target, text))\
             .mapValues(lambda v: ngrams(v, self.max_ngram))\
             .flatMap(lambda (target, tokens): (((target, t), 1) for t in tokens))\
             .reduceByKey(add)\
